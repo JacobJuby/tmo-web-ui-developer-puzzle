@@ -13,6 +13,7 @@
       <button
         mat-icon-button
         color="warn"
+        data-testing="remove-book"
         [attr.aria-label]="'Remove ' + book.title + ' from reading list'"
         (click)="removeFromReadingList(book)"
       >

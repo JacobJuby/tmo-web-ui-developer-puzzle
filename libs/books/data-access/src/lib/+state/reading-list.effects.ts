@@ -13,7 +13,7 @@ export class ReadingListEffects implements OnInitEffects {
       ofType(ReadingListActions.init),
       exhaustMap(() =>
         this.http
-          .get<ReadingListItem[]>(`${OKREADS_CONSTANTS.READING_LIST_API}`)
+          .get<ReadingListItem[]>(OKREADS_CONSTANTS.READING_LIST_API)
           .pipe(
             map((data) =>
               ReadingListActions.loadReadingListSuccess({ list: data })
@@ -29,22 +29,14 @@ export class ReadingListEffects implements OnInitEffects {
   addBook$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ReadingListActions.addToReadingList),
-      concatMap(({ book }) => {
-        const addedBook = {
-          ...book,
-          isAdded: true
-        };
-        return this.http
-          .post(`${OKREADS_CONSTANTS.READING_LIST_API}`, addedBook)
-          .pipe(
-            map(() =>
-              ReadingListActions.confirmedAddToReadingList({ book: addedBook })
-            ),
-            catchError((error) =>
-              of(ReadingListActions.failedAddToReadingList({ error }))
-            )
-          );
-      })
+      concatMap(({ book }) =>
+        this.http.post(OKREADS_CONSTANTS.READING_LIST_API, book).pipe(
+          map(() => ReadingListActions.confirmedAddToReadingList()),
+          catchError((error) =>
+            of(ReadingListActions.failedAddToReadingList({ book, error }))
+          )
+        )
+      )
     )
   );
 
@@ -55,11 +47,34 @@ export class ReadingListEffects implements OnInitEffects {
         this.http
           .delete(`${OKREADS_CONSTANTS.READING_LIST_API}/${item.bookId}`)
           .pipe(
-            map(() =>
-              ReadingListActions.confirmedRemoveFromReadingList({ item })
-            ),
+            map(() => ReadingListActions.confirmedRemoveFromReadingList()),
             catchError((error) =>
-              of(ReadingListActions.failedRemoveFromReadingList({ error }))
+              of(
+                ReadingListActions.failedRemoveFromReadingList({ item, error })
+              )
+            )
+          )
+      )
+    )
+  );
+
+  markBookAsFinished$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(ReadingListActions.markBookAsFinished),
+      concatMap(({ item }) =>
+        this.http
+          .put<ReadingListItem[]>(
+            `${OKREADS_CONSTANTS.READING_LIST_API}/${item.bookId}/finished`,
+            ''
+          )
+          .pipe(
+            map(() => ReadingListActions.init()),
+            catchError(() =>
+              of(
+                ReadingListActions.failedMarkBookAsFinished({
+                  error: OKREADS_CONSTANTS.MARK_BOOK_AS_FINISHED_FAILED,
+                })
+              )
             )
           )
       )

@@ -4,6 +4,7 @@
       autoFocus
       matInput
       type="search"
+      data-testing="search-book"
       placeholder="{{ searchBookConstant.PLACEHOLDER_TEXT }}"
       formControlName="term"
     />
@@ -34,10 +35,11 @@
             <button
               mat-flat-button
               color="primary"
+              data-testing="add-book"
               (click)="addBookToReadingList(book)"
               [disabled]="book.isAdded"
             >
-            {{ searchBookConstant.WANT_TO_READ }}
+            {{ book.finished ? searchBookConstant.FINISHED : searchBookConstant.WANT_TO_READ }}
             </button>
           </div>
         </div>
@@ -48,8 +50,8 @@
 <ng-template #empty>
   <div class="empty">
     <p>
-      {{ searchBookConstant.SEARCH_EXAMPLE_TEXT }} "<a (click)="searchExample()"
-        >{{ searchBookConstant.JAVASCRIPT }}</a
+      Try searching for a topic, for example "<a (click)="searchExample()"
+        >JavaScript</a
       >".
     </p>
   </div>

@@ -47,19 +47,22 @@ const readingListReducer = createReducer(
       error: action.error,
     };
   }),
-  on(ReadingListActions.confirmedAddToReadingList, (state, action) =>
+  on(ReadingListActions.addToReadingList, (state, action) =>
     readingListAdapter.addOne({ bookId: action.book.id, ...action.book }, state)
   ),
-  on(ReadingListActions.confirmedRemoveFromReadingList, (state, action) =>
+  on(ReadingListActions.failedAddToReadingList, (state, action) =>
+    readingListAdapter.removeOne(action.book.id, {
+      ...state,
+      error: action.error,
+    })
+  ),
+  on(ReadingListActions.removeFromReadingList, (state, action) =>
     readingListAdapter.removeOne(action.item.bookId, state)
   ),
-  on(ReadingListActions.failedAddToReadingList, (state, action) => {
-    return {
-      ...state,
-      error: action.error
-    };
-  }),
-  on(ReadingListActions.failedRemoveFromReadingList, (state, action) => {
+  on(ReadingListActions.failedRemoveFromReadingList, (state, action) =>
+    readingListAdapter.addOne(action.item, { ...state, error: action.error })
+  ),
+  on(ReadingListActions.failedMarkBookAsFinished, (state, action) => {
     return {
       ...state,
       error: action.error

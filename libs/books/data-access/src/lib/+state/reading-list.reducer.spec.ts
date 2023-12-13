@@ -1,3 +1,4 @@
+import { OKREADS_CONSTANTS } from '@tmo/shared/models';
 import * as ReadingListActions from './reading-list.actions';
 import {
   initialState,
@@ -32,51 +33,44 @@ describe('Books Reducer', () => {
       expect(result.ids.length).toEqual(3);
     });
 
-    it('confirmedAddToReadingList should add books to the reading list', () => {
-      const action = ReadingListActions.confirmedAddToReadingList({
-        book: createBook('C')
-      });
-
-      const result: State = reducer(state, action);
-
-      expect(result.ids).toEqual(['A', 'B', 'C']);
-    });
-
-    it('confirmedRemoveFromReadingList should remove books from the reading list', () => {
-      const action = ReadingListActions.confirmedRemoveFromReadingList({
-        item: createReadingListItem('B')
+    it('failedAddToReadingList should undo book addition to the state', () => {
+      const action = ReadingListActions.failedAddToReadingList({
+        book: createBook('B'),
+        error: OKREADS_CONSTANTS.READING_LIST_ADD_FAILURE,
       });
 
       const result: State = reducer(state, action);
 
       expect(result.ids).toEqual(['A']);
+      expect(result.error).toEqual(
+        OKREADS_CONSTANTS.READING_LIST_ADD_FAILURE
+      );
     });
 
-
-    it('failedAddToReadingList should update state with error message and undo book addition to the reading list', () => {
-      const error = 'Failed to add book to the reading list';
-      const action = ReadingListActions.failedAddToReadingList({
-        error
-      });
-
-      const result: State = reducer(state, action);
-
-      expect(result.ids).toEqual(['A', 'B']);
-      expect(result.error).toEqual(error);
-    });
-
-    it('failedRemoveFromReadingList should update state with error message and undo book removal from the reading list', () => {
-      const error = 'Failed to remove book from the reading list!';
+    it('failedRemoveFromReadingList should undo book removal from the state', () => {
       const action = ReadingListActions.failedRemoveFromReadingList({
-        error
+        item: createReadingListItem('C'),
+        error: OKREADS_CONSTANTS.READING_LIST_REMOVE_FAILURE,
       });
 
       const result: State = reducer(state, action);
 
-      expect(result.ids).toEqual(['A', 'B']);
-      expect(result.error).toEqual(error);
+      expect(result.ids).toEqual(['A', 'B', 'C']);
+      expect(result.error).toEqual(
+        OKREADS_CONSTANTS.READING_LIST_REMOVE_FAILURE
+      );
     });
 
+    it('failedMarkBookAsFinished should set error into the state', () => {
+      const action = ReadingListActions.failedMarkBookAsFinished({
+        error: OKREADS_CONSTANTS.MARK_BOOK_AS_FINISHED_FAILED,
+      });
+
+      const result: State = reducer(state, action);
+      expect(result.error).toEqual(
+        OKREADS_CONSTANTS.MARK_BOOK_AS_FINISHED_FAILED
+      );
+    });
   });
 
   describe('unknown action', () => {
